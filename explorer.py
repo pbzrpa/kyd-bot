@@ -7,7 +7,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class Explorer:
     _base_api = 'https://explorer.kydcoin.io/api/'
-    _base_ext_api = 'https://explorer.kydcoin.io/ext/'
+    _base_ext_api = 'http://209.250.244.184/ext/'
 
     def _get_data(self, base, endpoint):
         try:
