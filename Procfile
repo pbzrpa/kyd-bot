@@ -1,1 +1,1 @@
-worker: python ctsc.py
+worker: python main_bot.py
