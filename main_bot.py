@@ -159,6 +159,9 @@ class MNInfo:
     def get_locked_coins(self):
         return self.get_mn_count() * self.get_collateral()
 
+    def get_locked_perc(self):
+        return (self.get_locked_coins() / self.get_current_supply()) * 100
+
     def get_node_price(self):
         return self.get_usd_price() * self.get_collateral()
 
@@ -179,7 +182,7 @@ async def on_ready():
 
 
 @client.command(name='price', pass_context=True)
-async def ctsc_info(ctx):
+async def command_info(ctx):
 
     price_obj = Price()
 
@@ -198,7 +201,7 @@ async def ctsc_info(ctx):
 
 
 @client.command(name='mninfo', pass_context=True)
-async def ctsc_mninfo(ctx):
+async def command_mninfo(ctx):
 
     mn_obj = MNInfo()
 
@@ -219,8 +222,10 @@ async def ctsc_mninfo(ctx):
         embed.add_field(name = "MN Daily Reward", value = "$ {}".format(
             localize(mn_obj.get_daily_reward(), decimals = 2)))
         embed.add_field(name = "Payout Frequency", value = "{}".format(mn_obj.get_payout_freq()))
-        embed.add_field(name = "Locked Coins", value = "{} KYD".format(
-            localize(mn_obj.get_locked_coins(), decimals = 0)))
+        embed.add_field(name = "Locked Coins", value = "{} ( {}% )".format(
+            localize(mn_obj.get_locked_coins(), decimals = 0),
+            localize(mn_obj.get_locked_perc(), decimals = 0),
+            ))
         embed.add_field(name = "ROI", value = "{} %".format(
             localize(mn_obj.get_roi(), decimals = 2)))
         embed.add_field(name = "Node Price", value = "$ {}".format(
