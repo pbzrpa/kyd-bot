@@ -1,2 +1,1 @@
-# Future CTSC Info Bot
-Discord bot to get CTSC Info
+Discord bot to get KYD Info
