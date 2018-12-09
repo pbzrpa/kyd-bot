@@ -5,9 +5,9 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
-class CTSCExplorer:
-    _base_api = 'https://explorer.ctscoin.net/api/'
-    _base_ext_api = 'https://explorer.ctscoin.net/ext/'
+class Explorer:
+    _base_api = 'https://explorer.kydcoin.io/api/'
+    _base_ext_api = 'https://explorer.kydcoin.io/ext/'
 
     def _get_data(self, base, endpoint):
         try:
