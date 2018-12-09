@@ -1,11 +1,11 @@
-# CTSC bot by Pbzrpa
+# KYD bot by Pbzrpa
 
 import os
 import requests
 import discord
 
 from discord.ext.commands import Bot
-from explorer import CTSCExplorer
+from explorer import Explorer
 
 BOT_PREFIX = "!"
 
@@ -39,7 +39,7 @@ def get_btc_data():
 def get_cb_data():
     '''
     data : {
-        "id":"CTSC_BTC",
+        "id":"KYD_BTC",
         "last":"0.00000040",
         "volume":"0.01356439",
         "ask":"0.00000110",
@@ -48,19 +48,19 @@ def get_cb_data():
         }
     '''
     try:
-        data = requests.get('https://api.crypto-bridge.org/api/v1/ticker/CTSC_BTC', verify=False, timeout = 10).json()
+        data = requests.get('https://api.crypto-bridge.org/api/v1/ticker/KYD_BTC', verify=False, timeout = 10).json()
     except Exception as e:
         print('CB', e)
         data = None
     return data
 
 
-class CTSCPrice:
+class Price:
 
     def __init__(self):
         self.cb_data = get_cb_data()
         self.btc_data = get_btc_data()
-        self.explorer = CTSCExplorer()
+        self.explorer = Explorer()
         self.current_supply = None
 
     def is_valid(self):
@@ -96,15 +96,15 @@ class CTSCPrice:
         return float(self.cb_data.get('percentChange'))
 
 
-class CTSCMNInfo:
-    collateral = 25000
-    mn_rewards = 32
-    pos_rewards = 8
+class MNInfo:
+    collateral = 10000
+    mn_rewards = 10
+    pos_rewards = 2.5
 
     def __init__(self):
         self.cb_data = get_cb_data()
         self.btc_data = get_btc_data()
-        self.explorer = CTSCExplorer()
+        self.explorer = Explorer()
         self.current_supply = None
         self.mn_data = None
 
@@ -152,7 +152,9 @@ class CTSCMNInfo:
         return self.get_daily_coins() * self.get_usd_price()
 
     def get_payout_freq(self):
-        return seconds_to_freq((1440.0 / self.get_mn_count()) * 3600)
+        payments_days = 1440.0 / self.get_mn_count()
+        payments_hours = 24 / payments_days
+        return seconds_to_freq(payments_hours * 3600)
 
     def get_locked_coins(self):
         return self.get_mn_count() * self.get_collateral()
@@ -179,10 +181,10 @@ async def on_ready():
 @client.command(name='price', pass_context=True)
 async def ctsc_info(ctx):
 
-    price_obj = CTSCPrice()
+    price_obj = Price()
 
     if price_obj.is_valid():
-        embed = discord.Embed(color = 0xebea3e, title = 'Price Ticker')
+        embed = discord.Embed(color = 0x23DA79, title = 'Price Ticker')
         embed.add_field(name = "Market Cap", value = "$ {}".format(localize(price_obj.get_market_cap())))
         embed.add_field(name = "Volume", value = "{} BTC".format(localize(price_obj.get_volume(), decimals = 8)))
         embed.add_field(name = "Change", value = "{} %".format(localize(price_obj.get_24_diff(), decimals = 2)))
@@ -198,26 +200,26 @@ async def ctsc_info(ctx):
 @client.command(name='mninfo', pass_context=True)
 async def ctsc_mninfo(ctx):
 
-    mn_obj = CTSCMNInfo()
+    mn_obj = MNInfo()
 
     if mn_obj.is_valid():
-        embed = discord.Embed(color = 0xebea3e, title = "Masternode Info")
+        embed = discord.Embed(color = 0x23DA79, title = "Masternode Info")
         embed.add_field(name = "Block Count", value = "{}".format(
             mn_obj.get_block_count()))
         embed.add_field(name = "MN Count", value = "{}".format(
             mn_obj.get_mn_count()))
-        embed.add_field(name = "Supply", value = "{} CTSC".format(
+        embed.add_field(name = "Supply", value = "{} KYD".format(
             localize(mn_obj.get_current_supply(), decimals = 0)))
-        embed.add_field(name = "Collateral", value = "{} CTSC".format(
+        embed.add_field(name = "Collateral", value = "{} KYD".format(
             localize(mn_obj.get_collateral(), decimals = 0)))
-        embed.add_field(name = "MN Reward", value = "{} CTSC".format(
+        embed.add_field(name = "MN Reward", value = "{} KYD".format(
             localize(mn_obj.get_mn_rewards(), decimals = 2)))
-        embed.add_field(name = "PoS Reward", value = "{} CTSC".format(
+        embed.add_field(name = "PoS Reward", value = "{} KYD".format(
             localize(mn_obj.get_pos_rewards(), decimals = 2)))
         embed.add_field(name = "MN Daily Reward", value = "$ {}".format(
             localize(mn_obj.get_daily_reward(), decimals = 2)))
         embed.add_field(name = "Payout Frequency", value = "{}".format(mn_obj.get_payout_freq()))
-        embed.add_field(name = "Locked Coins", value = "{} CTSC".format(
+        embed.add_field(name = "Locked Coins", value = "{} KYD".format(
             localize(mn_obj.get_locked_coins(), decimals = 0)))
         embed.add_field(name = "ROI", value = "{} %".format(
             localize(mn_obj.get_roi(), decimals = 2)))
@@ -286,4 +288,4 @@ async def help(ctx):
     await client.say(help_message)
 
 
-client.run(os.environ['CTSCTOKEN'])
+client.run(os.environ['KYDTOKEN'])
