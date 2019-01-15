@@ -3,9 +3,14 @@
 import os
 import requests
 import discord
+import logging
 
 from discord.ext.commands import Bot
 from explorer import Explorer
+
+from localsettings import LOG_FILE
+
+logging.basicConfig(filename = LOG_FILE, level = logging.ERROR)
 
 BOT_PREFIX = "!"
 
@@ -31,8 +36,8 @@ def get_btc_data():
     try:
         data = requests.get('https://blockchain.info/ticker', verify=False, timeout = 10).json()['USD']
     except Exception as e:
-        print('BTC', e)
-        data = None
+        logging.error('{}: {}'.format('BTC', e))
+        raise e
     return data
 
 
@@ -50,8 +55,8 @@ def get_cb_data():
     try:
         data = requests.get('https://api.crypto-bridge.org/api/v1/ticker/KYD_BTC', verify=False, timeout = 10).json()
     except Exception as e:
-        print('CB', e)
-        data = None
+        logging.error('{}: {}'.format('CB', e))
+        raise e
     return data
 
 
@@ -259,36 +264,27 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if (
-            message.content.upper().startswith('!PRICE') or
-            message.content.upper().startswith('!MNINFO') or
-            message.content.upper().startswith('!H')):
+    command = message.content
+
+    if command in ('!price', '!mninfo', '!h'):
         await client.process_commands(message)
+    else:
+        return
 
 
 @client.event
 async def on_command_error(error, *args, **kwargs):
-    ctx = args[0]
-    print(error)
-    await client.send_message(
-        ctx.message.channel,
-        ctx.message.author.mention + ' Oops something went wrong. Please check !h')
+    logging.error('{}: {}'.format('general', error))
+    return
 
 
 @client.command(name='h', pass_context=True)
 async def help(ctx):
-    help_message = """```Here are list of available commands:
-
-    !h - Displays this message
-
-    *** Price Info ***
+    help_message = """```
+    Here are list of available commands:
 
     !price - Displays price info
-
-    *** Masternode Info ***
-
     !mninfo - Displays masternode info
-
     ```"""
     await client.say(help_message)
 
