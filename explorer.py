@@ -6,6 +6,10 @@ from localsettings import BASE_API, BASE_EXP_API
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
+class ExplorerException(Exception):
+    pass
+
+
 class Explorer:
     _base_api = BASE_API
     _base_ext_api = BASE_EXP_API
@@ -13,8 +17,8 @@ class Explorer:
     def _get_data(self, base, endpoint):
         try:
             data = requests.get('{}{}'.format(base, endpoint), verify = False, timeout = 10).json()
-        except Exception:
-            raise Exception('Could not get details from explorer')
+        except:
+            raise ExplorerException('Could not get details from explorer')
         return data
 
     def _get_api_data(self, endpoint):
